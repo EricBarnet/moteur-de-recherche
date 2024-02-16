@@ -1,37 +1,30 @@
-# compiled output
-/dist
-/node_modules
+# Ignorer les dossier node_modules créés par npm ou yarn
+node_modules/
 
-# Logs
-logs
+# Ignorer Angular build output
+/dist/
+
+# Ignorer NestJS build output
+/dist/
+
+# Ignorer tous fichiers générés par les IDE
+.idea/
+.vscode/
+
+# Ignorer les fichiers d'environnements
+.env
+.env.*
+
+# Ignorer logs
+logs/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-test-results.json
 
-# OS
-.DS_Store
+# Ignorer le dossier data de PostgreSQL
+/data/
 
-# Tests
-/coverage
-/.nyc_output
+# Ignorer tous fichiers sensibles ou de configuration d'environnement
+/config/*.env
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-globalConfig.json
+# Ignorer fichiers temporaires
+*.tmp
+*.temp
