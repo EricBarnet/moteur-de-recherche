@@ -1,6 +1,5 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,4 +7,31 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// Modèle pour les livres avec des références au forward index
+model Livre {
+  id        Int           @id @default(autoincrement())
+  titre     String
+  auteur    String
+  // Le contenu peut être stocké comme un fichier externe ou une URL vers un contenu externe si c'est trop grand pour la BDD
+  contenuUrl String
+  forwardIndex ForwardIndex[]
+}
+
+// Modèle pour le forward index (chaque entrée représente un mot dans un livre et sa position)
+model ForwardIndex {
+  id       Int      @id @default(autoincrement())
+  livre    Livre    @relation(fields: [livreId], references: [id])
+  livreId  Int
+  mot      String
+  position Int      // La position du mot dans le livre
+  @@index([livreId], name: "idx_livre")
+}
+
+// Modèle pour l'inverted index (chaque entrée représente un mot et les livres dans lesquels il apparaît)
+model InvertedIndex {
+  mot      String   @id
+  // Un champ JSON pour stocker une liste d'entrées { livreId, positions[] }
+  occurrences Json
 }
