@@ -15,25 +15,22 @@ export class ScrapingService {
     const response$ = this.httpService.get(apiUrl);
     const response = await lastValueFrom(response$);
 
-    if (response.status === 200 && response.data.results.length > 0) {
-      // Prendre seulement les 10 premiers livres
+    if (response.data && response.data.results.length > 0) {
       const books = response.data.results.slice(0, 10);
       for (const book of books) {
-        // Transformer et insérer les données ici
+        const formats = book.formats || {};
+        const textUrl =
+          formats['text/plain'] || formats['text/html'] || 'URL non disponible';
+
+        // Utilisez Prisma pour insérer les données dans la base de données
         await this.prismaService.livre.create({
           data: {
             titre: book.title,
-            auteur:
-              book.authors && book.authors.length > 0
-                ? book.authors[0].name
-                : 'Inconnu',
-            contenuUrl: book.formats['text/plain'] || 'URL non disponible',
-            // Ajoutez ici d'autres champs si nécessaire
+            auteur: book.authors[0].name || 'Inconnu',
+            contenuUrl: textUrl, // Ici nous utilisons la nouvelle URL trouvée
           },
         });
       }
-    } else {
-      console.error(`Failed to scrape books: ${response.status}`);
     }
   }
 }
