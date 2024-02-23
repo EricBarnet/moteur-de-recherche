@@ -11,16 +11,26 @@ export class ScrapingService {
   ) {}
 
   async fetchAndCountWords(
-    textUrl: string,
+    bookId: number, // Utilisation de l'ID du livre pour construire l'URL
   ): Promise<{ wordCount: number; words: string[] }> {
-    const textResponse$ = this.httpService.get(textUrl, {
-      responseType: 'text',
-    });
-    const textResponse = await lastValueFrom(textResponse$);
+    // Construction de l'URL à partir de l'ID du livre
+    const textUrl = `https://www.gutenberg.org/cache/epub/${bookId}/pg${bookId}.txt`;
+    try {
+      const textResponse$ = this.httpService.get(textUrl, {
+        responseType: 'text',
+      });
+      const textResponse = await lastValueFrom(textResponse$);
+      const words = textResponse.data.match(/\w+/g) || [];
+      return { wordCount: words.length, words };
+    } catch (error) {
+      console.error(
+        `Failed to fetch or count words for book ID ${bookId}:`,
+        error,
+      );
+      return { wordCount: 0, words: [] };
+    }
 
     // Simple word count logic (might need to be more sophisticated depending on the actual text structure)
-    const words = textResponse.data.match(/\w+/g) || [];
-    return { wordCount: words.length, words };
   }
 
   async scrapeBooks(): Promise<void> {
@@ -33,7 +43,7 @@ export class ScrapingService {
         const formats = book.formats || {};
         const textUrl = formats['text/plain'] || formats['text/html'];
 
-        if (textUrl) {
+        if (book.id) {
           const { wordCount, words } = await this.fetchAndCountWords(textUrl);
 
           if (wordCount >= 10000) {

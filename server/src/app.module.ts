@@ -8,10 +8,16 @@ import { SearchService } from './search/search.service';
 import { SearchController } from './search/search.controller';
 import { IndexingService } from './indexing/indexing.service';
 import { IndexingController } from './indexing/indexing.controller';
-
+import { ScrapingService } from './scraping/scraping.service';
 @Module({
   imports: [HttpModule, ScrapingModule],
   controllers: [AppController, SearchController, IndexingController],
-  providers: [AppService, PrismaService, SearchService, IndexingService],
+  providers: [
+    AppService,
+    PrismaService,
+    SearchService,
+    IndexingService,
+    ScrapingService,
+  ],
 })
 export class AppModule {}
