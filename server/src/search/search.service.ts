@@ -1,27 +1,43 @@
 import { Injectable } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { lastValueFrom } from 'rxjs';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class SearchService {
-  constructor(private httpService: HttpService) {}
+  constructor(private prisma: PrismaService) {}
 
-  async explicitSearch(keyword: string): Promise<any> {
-    const searchUrl = `https://gutendex.com/books?search=${keyword}`;
-    const response$ = this.httpService.get(searchUrl);
-    const response = await lastValueFrom(response$);
+  async searchBooks(keyword: string): Promise<any[]> {
+    // Trouver les occurrences du mot-clé dans l'index inversé
+    const occurrences = await this.prisma.invertedIndex.findMany({
+      where: {
+        mot: {
+          contains: keyword,
+          mode: 'insensitive',
+        },
+      },
+    });
 
-    if (response.status === 200 && response.data.results.length > 0) {
-      return response.data.results.map((book) => ({
-        title: book.title,
-        author: book.authors.map((author) => author.name).join(', '),
-        textUrl:
-          book.formats['text/plain'] ||
-          book.formats['text/html'] ||
-          'URL non disponible',
-      }));
-    } else {
-      throw new Error(`Failed to search books with keyword: ${keyword}`);
-    }
+    // Extraire les IDs des livres à partir des occurrences
+    const bookIds = occurrences.flatMap((occ) => {
+      // Assurez-vous que occ.occurrences est une chaîne avant de la parser
+      if (typeof occ.occurrences === 'string') {
+        return JSON.parse(occ.occurrences).map((occ: any) => occ.livreId);
+      }
+      // Si ce n'est pas une chaîne, retournez un tableau vide
+      return [];
+    });
+
+    // Récupérer les détails des livres correspondants
+    const books = await this.prisma.livre.findMany({
+      where: {
+        id: { in: bookIds },
+      },
+    });
+
+    return books.map((book) => ({
+      titre: book.titre,
+      auteur: book.auteur,
+      contenuUrl: book.contenuUrl,
+      // Ajoutez d'autres propriétés nécessaires
+    }));
   }
 }
