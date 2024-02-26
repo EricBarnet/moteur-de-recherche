@@ -7,29 +7,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Modèle pour les livres avec des références au forward index
-model Livre {
-  id        Int           @id @default(autoincrement())
-  titre     String
-  auteur    String
-  // Le contenu peut être stocké comme un fichier externe ou une URL vers un contenu externe si c'est trop grand pour la BDD
-  contenuUrl String
-  forwardIndex ForwardIndex[]
+model Book {
+  id              Int      @id @default(autoincrement())
+  title           String
+  author          String
+  publicationDate DateTime?
+  language        String?
+  url             String?
+  Words           Word[]   @relation("BookWords")
 }
 
-// Modèle pour le forward index (chaque entrée représente un mot dans un livre et sa position)
-model ForwardIndex {
-  id       Int      @id @default(autoincrement())
-  livre    Livre    @relation(fields: [livreId], references: [id])
-  livreId  Int
-  mot      String
-  position Int      // La position du mot dans le livre
-  @@index([livreId], name: "idx_livre")
+model Word {
+  id        Int      @id @default(autoincrement())
+  text      String
+  frequency Int      @default(0)
+  bookId    Int
+  Book      Book     @relation(fields: [bookId], references: [id], name: "BookWords")
 }
 
-// Modèle pour l'inverted index (chaque entrée représente un mot et les livres dans lesquels il apparaît)
-model InvertedIndex {
-  mot      String   @id
-  // Un champ JSON pour stocker une liste d'entrées { livreId, positions[] }
-  occurrences Json
-}
