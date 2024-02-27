@@ -1,12 +1,16 @@
-.form {
-  min-width: 150px;
-  max-width: 500px;
-  width: 100%;
-  display: flex;
+:host {
+  display: block;
+  width: 30%;
 }
 
-.full-width {
+.form {
   width: 100%;
-  height: auto;
-  flex: auto
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+mat-form-field {
+  width: 100%;
+  flex: 1;
 }
