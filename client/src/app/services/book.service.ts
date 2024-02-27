@@ -19,6 +19,18 @@ export class BookService {
       author: 'Auteur Deux',
       description: 'Description du Livre Deux',
     },
+    {
+      id: 3,
+      title: 'Livre Trois',
+      author: 'Auteur Trois',
+      description: 'Description du Livre Trois',
+    },
+    {
+      id: 4,
+      title: 'Livre Quatre',
+      author: 'Auteur Quatre',
+      description: 'Description du Livre Quatre',
+    },
   ];
 
   constructor() {}
