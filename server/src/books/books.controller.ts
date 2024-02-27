@@ -21,9 +21,11 @@ export class BooksController {
 
   @Post()
   async addBooks(@Body() bookIds: number[]) {
+    console.time('ajout de tout les livres dureee total');
     for (const bookId of bookIds) {
       await this.booksService.addBook(bookId);
     }
+    console.timeEnd('ajout de tout les livres dureee total');
     return { message: `${bookIds.length} books added successfully` };
   }
 }

@@ -11,17 +11,22 @@ model Book {
   id              Int      @id @default(autoincrement())
   title           String
   author          String
-  publicationDate DateTime?
   language        String?
-  url             String?
-  Words           Word[]   @relation("BookWords")
+  words           BookWord[]
 }
 
 model Word {
   id        Int      @id @default(autoincrement())
-  text      String
-  frequency Int      @default(0)
-  bookId    Int
-  Book      Book     @relation(fields: [bookId], references: [id], name: "BookWords")
+  text      String @unique
+  books BookWord[]
 }
 
+model BookWord {
+  bookId  Int
+  wordId  Int
+  frequency Int @default(0)
+  Book    Book   @relation(fields: [bookId], references: [id])
+  Word    Word   @relation(fields: [wordId], references: [id])
+
+  @@id([bookId, wordId])
+}
