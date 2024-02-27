@@ -1,1 +1,17 @@
-<p>list works!</p>
+<mat-card class="book-card" *ngFor="let book of books">
+  <mat-card-header>
+    <div mat-card-avatar class="book-header-image"></div>
+    <mat-card-title>{{ book.title }}</mat-card-title>
+    <mat-card-subtitle>{{ book.author }}</mat-card-subtitle>
+  </mat-card-header>
+  <img mat-card-image src="{{ book.image }}" alt="Book cover" />
+  <mat-card-content>
+    <p>{{ book.description }}</p>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-button>PLUS D'INFOS</button>
+    <span class="availability"
+      >{{ book.availability }} exemplaires disponibles</span
+    >
+  </mat-card-actions>
+</mat-card>
