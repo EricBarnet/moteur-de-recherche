@@ -5,8 +5,12 @@ import axios from 'axios';
 @Injectable()
 export class BooksService {
   constructor(private prisma: PrismaService) {}
+  async addBooks(bookIds: number[]): Promise<void> {
+    const promises = bookIds.map((bookId) => this.addBook(bookId));
+    await Promise.all(promises);
+  }
 
-  async addBook(bookId: number): Promise<void> {
+  public async addBook(bookId: number): Promise<void> {
     console.time('addBook total');
     console.time('checking existing book');
     // Vérifier si le livre existe déjà dans la base de données
@@ -23,31 +27,37 @@ export class BooksService {
       return;
     }
     console.time('fetching metadata and content');
-    const metadataUrl = `https://gutendex.com/books/${bookId}`;
-    const metadataResponse = await axios.get(metadataUrl);
-    const bookDetails = metadataResponse.data;
-    const bookContentUrl = `https://www.gutenberg.org/cache/epub/${bookId}/pg${bookId}.txt`;
-    const contentResponse = await axios.get(bookContentUrl);
-    const bookContent = contentResponse.data;
-    console.timeEnd('fetching metadata and content');
+    try {
+      const [metadataResponse, contentResponse] = await Promise.all([
+        axios.get(`https://gutendex.com/books/${bookId}`),
+        axios.get(
+          `https://www.gutenberg.org/cache/epub/${bookId}/pg${bookId}.txt`,
+        ),
+      ]);
+      const bookDetails = metadataResponse.data;
+      const bookContent = contentResponse.data;
+      console.timeEnd('fetching metadata and content');
 
-    console.time('creating book record');
-    // Créer un nouveau livre avec les métadonnées récupérées
-    const book = await this.prisma.book.create({
-      data: {
-        id: bookId,
-        title: bookDetails.title,
-        author: bookDetails.authors.map((a) => a.name).join(', '),
-        language: bookDetails.languages.join(', '),
-      },
-    });
-    // console.log(bookContent);
-    console.timeEnd('creating book record');
-    console.time('indexing and storing words');
-    const wordIndex = this.tokenizeAndIndex(bookContent);
-    await this.storeUniqueWords(book.id, wordIndex);
-    console.timeEnd('indexing and storing words');
-    console.timeEnd('addBook total');
+      console.time('creating book record');
+      // Créer un nouveau livre avec les métadonnées récupérées
+      const book = await this.prisma.book.create({
+        data: {
+          id: bookId,
+          title: bookDetails.title,
+          author: bookDetails.authors.map((a) => a.name).join(', '),
+          language: bookDetails.languages.join(', '),
+        },
+      });
+      // console.log(bookContent);
+      console.timeEnd('creating book record');
+      console.time('indexing and storing words');
+      const wordIndex = this.tokenizeAndIndex(bookContent);
+      await this.storeUniqueWords(book.id, wordIndex);
+      console.timeEnd('indexing and storing words');
+      console.timeEnd('addBook total');
+    } catch (error) {
+      console.error(`Content for bookid ${bookId} not found or not reading`);
+    }
   }
   async searchBooks(query: string): Promise<any> {
     const words = query.toLowerCase().split(/\W+/);
@@ -83,43 +93,52 @@ export class BooksService {
     bookId: number,
     wordIndex: Record<string, number>,
   ): Promise<void> {
-    const wordsToCreate = [];
+    const uniqueWords = Object.keys(wordIndex);
 
-    const bookWordsToUpsert = [];
+    const existingWords = await this.prisma.word.findMany({
+      where: { text: { in: uniqueWords } },
+      select: { id: true, text: true },
+    });
+    // Creer un dictionnaire qui accede rapidement aux IDs des mots existants
+    const wordDictionary = existingWords.reduce((dict, word) => {
+      dict[word.text] = word.id;
+      return dict;
+    }, {});
 
-    for (const [wordText, frequency] of Object.entries(wordIndex)) {
-      wordsToCreate.push({ text: wordText });
-      bookWordsToUpsert.push({
-        text: wordText,
-        where: { bookId_wordId: { bookId, wordId: -1 } }, // -1 est un placeholder
-        create: { bookId, wordId: -1, frequency }, // -1 est un placeholder
-        update: { frequency },
-      });
-    }
+    const newWords = uniqueWords.filter((word) => !wordDictionary[word]);
 
     // cette methode insere tous les mots uniques en une seule opération et skip les duplicatas
-    await this.prisma.word.createMany({
-      data: wordsToCreate,
-      skipDuplicates: true,
+    if (newWords.length > 0) {
+      await this.prisma.word.createMany({
+        data: newWords.map((text) => ({ text })),
+        skipDuplicates: true,
+      });
+    }
+    // Associe les mots au livre avec les bon ids
+    const updatedExistingWords = await this.prisma.word.findMany({
+      where: { text: { in: newWords } },
     });
 
-    // Pour chaque relation bookWord (donc la table de jointure qui lie la table book et word), ça trouve l'id du mot correspondant
-    for (const bookWord of bookWordsToUpsert) {
-      const word = await this.prisma.word.findUnique({
-        where: { text: bookWord.text },
-      });
-      if (word) {
-        // Maintenant que vous avez l'ID du mot, vous pouvez effectuer l'opération upsert
-        await this.prisma.bookWord.upsert({
-          where: { bookId_wordId: { bookId, wordId: word.id } },
-          create: {
+    // Mise a jour la dictionnaire avec les nouveaux mots
+    updatedExistingWords.forEach((word) => {
+      wordDictionary[word.text] = word.id;
+    });
+
+    for (const [text, frequency] of Object.entries(wordIndex)) {
+      await this.prisma.bookWord.upsert({
+        where: {
+          bookId_wordId: {
             bookId,
-            wordId: word.id,
-            frequency: bookWord.update.frequency,
+            wordId: wordDictionary[text],
           },
-          update: { frequency: bookWord.update.frequency },
-        });
-      }
+        },
+        update: { frequency },
+        create: {
+          bookId,
+          wordId: wordDictionary[text],
+          frequency,
+        },
+      });
     }
   }
 }
