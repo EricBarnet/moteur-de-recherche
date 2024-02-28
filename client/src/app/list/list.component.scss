@@ -1,12 +1,4 @@
 .book-card {
   margin: 10px;
-}
-
-.book-header-image {
-  background-image: url("/path/to/your/default/image.png");
-  background-size: cover;
-}
-
-.availability {
-  margin-left: auto;
+  box-shadow: 0 4px 8px rgba(255, 69, 221, 0.1);
 }

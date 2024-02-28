@@ -2,11 +2,13 @@ import { Component } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { Book } from '../models/book.model';
 import { BookService } from '../services/book.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 @Component({
   selector: 'app-list',
   standalone: true,
-  imports: [MatCardModule],
+  imports: [MatCardModule, MatButtonModule, MatGridListModule],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss',
 })
