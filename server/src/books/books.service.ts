@@ -1,4 +1,3 @@
-// src/books/books.service.ts
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import axios from 'axios';
@@ -16,7 +15,7 @@ export class BooksService {
     // Vérifier si le livre existe déjà dans la base de données
     const existingBook = await this.prisma.book.findUnique({
       where: {
-        id: bookId, // ou utilisez un autre champ unique approprié pour la vérification
+        id: bookId,
       },
     });
     console.timeEnd('checking existing book');
@@ -48,7 +47,6 @@ export class BooksService {
           language: bookDetails.languages.join(', '),
         },
       });
-      // console.log(bookContent);
       console.timeEnd('creating book record');
       console.time('indexing and storing words');
       const wordIndex = this.tokenizeAndIndex(bookContent);
@@ -72,7 +70,7 @@ export class BooksService {
           include: {
             Book: true,
           },
-        }, // Relation définie entre les mots et
+        },
       },
     });
     return results.map((result) =>
