@@ -9,25 +9,25 @@ export class BookService {
   private mockBooks: Book[] = [
     {
       id: 1,
-      title: 'Frankenstein; Or, The Modern Prometheus',
+      title: 'Livre Frankenstein; Or, The Modern Prometheus',
       author: 'Shelley, Mary Wollstonecraft',
       description: 'Description 1',
     },
     {
       id: 2,
-      title: 'Pride and Prejudice',
+      title: 'Livre Pride and Prejudice',
       author: 'Austen, Jane',
       description: 'Description 2',
     },
     {
       id: 3,
-      title: 'Romeo and Juliet',
+      title: 'Livre Romeo and Juliet',
       author: 'Shakespeare, William',
       description: 'Description 3',
     },
     {
       id: 4,
-      title: 'A Room with a View',
+      title: 'Livre A Room with a View',
       author: 'Forster, E. M. (Edward Morgan)',
       description: 'Description 4',
     },

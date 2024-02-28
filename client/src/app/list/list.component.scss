@@ -1,4 +1,13 @@
 .book-card {
+  display: flex;
   margin: 10px;
-  box-shadow: 0 4px 8px rgba(255, 69, 221, 0.1);
+  box-shadow: 0 4px 8px rgba(255, 69, 221, 0.508);
+  justify-content: space-between;
+}
+
+mat-card-title {
+  white-space: normal; 
+  height: 3em; 
+  overflow: hidden; 
+  margin-bottom: 1em;
 }

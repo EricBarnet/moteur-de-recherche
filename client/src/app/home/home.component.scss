@@ -1,11 +1,17 @@
 mat-card {
-    margin: 20px;
-    padding: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  }
+  margin: 20px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
 
-.searchbar{
+.searchbar {
   width: 100%;
   display: flex;
   justify-content: center;
+}
+
+.gradient-text {
+  background: linear-gradient(45deg, #3F51B5, #E91E63);
+  background-clip: text;
+  color: transparent;
 }
