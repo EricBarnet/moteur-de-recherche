@@ -1,7 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { Book } from '../models/book.model';
-import { BookService } from '../services/book.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 
@@ -13,17 +12,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
   styleUrl: './list.component.scss',
 })
 export class ListComponent {
-  books: Book[] = [];
+  @Input() books: Book[] = [];
 
-  constructor(private bookService: BookService) {}
-
-  ngOnInit(): void {
-    this.getBooks();
-  }
-
-  getBooks(): void {
-    this.bookService.getBooks().subscribe((books) => {
-      this.books = books;
-    });
-  }
+  ngOnInit(): void {}
 }
