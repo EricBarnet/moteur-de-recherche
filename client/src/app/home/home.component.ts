@@ -25,20 +25,16 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  // onSearch(searchValue: string): void {
-  //   BookService.getBooks().subscribe((books) => {
-  //     this.filteredBooks = books.filter((book) =>
-  //       book.description.toLowerCase().includes(searchValue.toLowerCase())
-  //     );
-  //     this.isSearchPerformed = true;
-  //   });
-  // }
   onSearch(searchTerm: string) {
-    this.isSearchPerformed = true;
-    searchTerm = searchTerm.toLowerCase();
+    if (searchTerm.trim().length >= 2) {
+      this.isSearchPerformed = true;
+      searchTerm = searchTerm.toLowerCase();
 
-    this.filteredBooks = this.books.filter((book) =>
-      book.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+      this.filteredBooks = this.books.filter((book) =>
+        book.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    } else {
+      this.filteredBooks = [];
+    }
   }
 }

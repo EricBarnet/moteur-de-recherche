@@ -26,12 +26,12 @@ import { ReactiveFormsModule } from '@angular/forms';
 })
 export class SearchbarComponent {
   isSearchPerformed = false;
-  @Output() search = new EventEmitter<string>(); // Emitting event search
+  @Output() search = new EventEmitter<string>(); // Emettre event search
   @ViewChild('searchInput', { static: true }) searchInput!: ElementRef;
 
   // Méthode de recherche
   onSearch(value: string, event: Event) {
     event.preventDefault(); 
-    this.search.emit(value); // Emit la valeur de la recherche
+    this.search.emit(value); // Emet la valeur de la recherche
   }
 }
