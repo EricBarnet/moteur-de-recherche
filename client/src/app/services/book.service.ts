@@ -36,7 +36,7 @@ export class BookService {
   constructor() {}
 
   // Récupérer les livres
-  getBooks(): Observable<Book[]> {
+  public getBooks(): Observable<Book[]> {
     return of(this.mockBooks);
   }
 }

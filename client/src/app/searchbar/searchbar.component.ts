@@ -1,4 +1,10 @@
-import { Component } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -19,5 +25,13 @@ import { ReactiveFormsModule } from '@angular/forms';
   styleUrl: './searchbar.component.scss',
 })
 export class SearchbarComponent {
-  keyword: string = '';
+  isSearchPerformed = false;
+  @Output() search = new EventEmitter<string>(); // Emitting event search
+  @ViewChild('searchInput', { static: true }) searchInput!: ElementRef;
+
+  // Méthode de recherche
+  onSearch(value: string, event: Event) {
+    event.preventDefault(); 
+    this.search.emit(value); // Emit la valeur de la recherche
+  }
 }

@@ -1,10 +1,18 @@
-<form class="form">
+<form class="form" (ngSubmit)="onSearch(searchInput.value, $event)">
   <mat-form-field>
     <mat-label>Je recherche !</mat-label>
-    <input type="text" matInput placeholder="Tapez un mot-clé...">
+    <input
+      type="text"
+      matInput
+      #searchInput
+      placeholder="Tapez un mot-clé..."
+    />
   </mat-form-field>
-  <button mat-icon-button aria-label="icone de recherche">
+  <button
+    mat-icon-button
+    aria-label="icone de recherche"
+    (click)="onSearch(searchInput.value, $event)"
+  >
     <mat-icon>search</mat-icon>
   </button>
 </form>
-
